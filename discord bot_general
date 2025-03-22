@@ -3,6 +3,8 @@ import random
 from generador import gen_pass
 from caraosello import flip_coin
 from emoji import gen_emodji
+from peliculasrandom import movie_random
+from videojuegosrandom import videogames_random
 import asyncio
 import youtube_dl
 
@@ -132,7 +134,13 @@ class MyClient(commands.Bot):
             await message.channel.send(f"El resultado es: {resultado}")
         elif message.content.startswith('/passwords'):
             await message.channel.send(gen_pass(10))
-        elif message.content.startswith('/emojis_random'):
+        elif message.content.startswith('/random_movies'):
+            resultado = movie_random()
+            await message.channel.send(resultado)
+        elif message.content.startswith('/random_videogames'):
+            resultado = videogames_random()
+            await message.channel.send(resultado)
+        elif message.content.startswith('/random_emojis'):
             resultado = gen_emodji()
             await message.channel.send(resultado)
         elif message.content.startswith('$hello'):
@@ -143,6 +151,8 @@ class MyClient(commands.Bot):
             await message.channel.send("no le creas, la veas, ignorala")
         elif message.content.startswith('vale la pena la playstation 5 pro?'):
             await message.channel.send("no, si la tienes quemala")
+        elif message.content.startswith('/help'):
+            await message.channel.send("/random_movies, /random_emojis, /random_videogames, /passwords, /cara o sello")
         else:
             await message.channel.send(message.content)
 
