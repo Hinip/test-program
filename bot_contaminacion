@@ -1,0 +1,74 @@
+import discord
+import json
+import random
+import os
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
+
+# Cargar datos si el archivo existe, si no, usar valores por defecto
+if os.path.exists('data_contaminacion.json'):
+    with open('data_contaminacion.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        conta = data['conta']
+        precio_x2 = data['precio_x2']
+        precio_dato_curioso = data['precio_dato_curioso']
+else:
+    conta = 0
+    precio_x2 = 20
+    precio_dato_curioso = 100
+
+datos_curiosos = [
+    "¿Sabías que 9.000.000 de personas mueren al año por contaminación?",
+    "¿Sabías que el 73% de la basura de las playas es plástico?",
+    "¿Sabías que al menos el plástico dura 450 años en el planeta y algunos nunca desaparecerán?"
+]
+
+def guardar_datos():
+    with open('data_contaminacion.json', 'w', encoding='utf-8') as f:
+        json.dump({
+            'conta': conta,
+            'precio_x2': precio_x2,
+            'precio_dato_curioso': precio_dato_curioso
+        }, f, ensure_ascii=False, indent=4)
+
+@client.event
+async def on_ready():
+    print(f"✅ Bot conectado como {client.user}")
+
+@client.event
+async def on_message(message):
+    global conta, precio_x2, precio_dato_curioso
+
+    if message.author == client.user:
+        return
+
+    msg = message.content.lower()
+
+    if msg == "sacar basura":
+        conta += 1
+        guardar_datos()
+        await message.channel.send("+1 basura recogida!")
+
+    elif msg == "ver basura recogida":
+        await message.channel.send(f"Has recogido {conta} de basura 🗑️")
+
+    elif msg == "comprar conta x2":
+        if conta < precio_x2:
+            await message.channel.send("❌ No tienes suficiente basura para comprar x2.")
+        else:
+            conta -= precio_x2
+            precio_x2 *= 2
+            guardar_datos()
+            await message.channel.send("✅ Ahora ganas el doble al recoger basura. ¡Felicidades!")
+
+    elif msg == "comprar dato curioso":
+        if conta < precio_dato_curioso:
+            await message.channel.send("❌ No tienes suficiente basura para un dato curioso.")
+        else:
+            conta -= precio_dato_curioso
+            precio_dato_curioso *= 2
+            guardar_datos()
+            await message.channel.send("🧠 " + random.choice(datos_curiosos))
